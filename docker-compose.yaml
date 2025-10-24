@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  server:
+    build:
+      context: ./server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mongodb
+
+  client:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+volumes:
+  postgres-data:
+  mongo-data:
