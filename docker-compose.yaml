@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:latest   
     restart: always
     environment:
       POSTGRES_USER: user
@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql  
 
   mongodb:
     image: mongo:latest
@@ -20,7 +20,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
 
   server:
     build:
@@ -40,5 +40,5 @@ services:
       - server
 
 volumes:
-  postgres-data:
-  mongo-data:
+  postgres_data:
+  mongo_data:
