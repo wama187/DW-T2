@@ -11,7 +11,7 @@ import (
 	"golang.org/x/oauth2/google"
 	"github.com/golang-jwt/jwt/v5"
 	"app/server/apps/user"
-	"app/server/gen/auth"HEAD~1
+	"app/server/gen/auth"
 )
 
 type TokenResponse struct {
