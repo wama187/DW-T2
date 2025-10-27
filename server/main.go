@@ -13,6 +13,7 @@ import (
 	"app/server/apps/book/v1"
 	"app/server/apps/book/v2"
 	"app/server/databases"
+	"app/server/apps/auth"
 
 	goahttp "goa.design/goa/v3/http"
 	usersapi "app/server/gen/users"
@@ -21,6 +22,9 @@ import (
 	booksrv "app/server/gen/http/books/server"
 	booksapiv2 "app/server/gen/books_v2"
 	booksrvv2 "app/server/gen/http/books_v2/server"
+	authapi "app/server/gen/auth"
+	authsrv "app/server/gen/http/auth/server"
+
 
 	"github.com/rs/cors"
 )
@@ -61,10 +65,17 @@ func main() {
 		jwtSecret,
 	)
 
+	authService := auth.NewAuth(
+		user.NewUserRepositoryPostgres(postgreDB),
+	 	jwtSecret, 
+	 	24*time.Hour,
+	)
+
 	// Crear endpoints
 	usersEndpoints := usersapi.NewEndpoints(userService)
 	booksEndpoints := booksapi.NewEndpoints(bookService)
 	booksEndpointsV2 := booksapiv2.NewEndpoints(bookServiceV2)
+	authEndpoints := authapi.NewEndpoints(authService)
 
 	// Crear router HTTP
 	mux := goahttp.NewMuxer()
@@ -73,12 +84,13 @@ func main() {
 	usersServer := userssrv.New(usersEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
 	booksServer := booksrv.New(booksEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
 	booksServerV2 := booksrvv2.New(booksEndpointsV2, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
+	authServer := authsrv.New(authEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
 
 	// Montar endpoints
 	userssrv.Mount(mux, usersServer)
 	booksrv.Mount(mux, booksServer)
 	booksrvv2.Mount(mux, booksServerV2)
-
+	authsrv.Mount(mux, authServer)
 	log.Println("Endpoints montados correctamente")
 
 	// Configurar CORS

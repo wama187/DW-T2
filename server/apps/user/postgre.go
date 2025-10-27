@@ -31,6 +31,7 @@ func (r *userRepoPostgres) FindByEmail(email string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	return &User{
 		ID: 	  user.ID,
 		Name:     user.Name,
