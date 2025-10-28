@@ -14,6 +14,9 @@ import (
 	"app/server/apps/book/v2"
 	"app/server/databases"
 	"app/server/apps/auth"
+	"github.com/joho/godotenv"
+	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2"
 
 	goahttp "goa.design/goa/v3/http"
 	usersapi "app/server/gen/users"
@@ -30,6 +33,22 @@ import (
 )
 
 func main() {
+	err := godotenv.Load("/app/.env")
+	if err != nil {
+		log.Fatal("Error cargando el archivo .env")
+	}
+
+	cfg := &oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_CLIENT"),
+		ClientSecret: os.Getenv("GOOGLE_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
+	}
+	
 	port := "8080"
 	jwtSecret := "a7BzjaA19AB187zmj99MlZaEMN"
 
@@ -69,6 +88,7 @@ func main() {
 		user.NewUserRepositoryPostgres(postgreDB),
 	 	jwtSecret, 
 	 	24*time.Hour,
+		cfg,
 	)
 
 	// Crear endpoints
