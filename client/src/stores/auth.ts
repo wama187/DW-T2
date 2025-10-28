@@ -7,6 +7,20 @@ export const useAuthStore = defineStore('auth', {
     user: null,
   }),
   actions: {
+    setToken(token: string) {
+      this.token = token;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    },
+    async googleLogin() {
+      try {
+        const response = await api.get('/auth/google/login');
+        window.location.href = response.data.redirect_url;
+      } catch (error) {
+        console.error('Error during Google login:', error);
+      }
+    },
+
     async login(email: string, password: string) {
       const response = await api.post('/login', { email, password });
       this.token = response.data.access_token;

@@ -7,11 +7,11 @@ import (
 
 	"time"
 
-	"golang.org/x/oauth2"
-	"github.com/golang-jwt/jwt/v5"
 	"app/server/apps/user"
 	"app/server/gen/auth"
-	
+	"net/url"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/oauth2"
 )
 
 type TokenResponse struct {
@@ -47,12 +47,13 @@ func (s *authsrvc) GoogleCallback(ctx context.Context, payload *auth.GoogleCallb
 		return nil, fmt.Errorf("missing code")
 	}
 
-	token, err := s.cfg.Exchange(context.Background(), code)
+	// usa el contexto de la petición para las llamadas salientes
+	token, err := s.cfg.Exchange(ctx, code)
 	if err != nil {
 		return nil, fmt.Errorf("token exchange failed: %v", err)
 	}
 
-	client := s.cfg.Client(context.Background(), token)
+	client := s.cfg.Client(ctx, token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user info: %v", err)
@@ -83,14 +84,12 @@ func (s *authsrvc) GoogleCallback(ctx context.Context, payload *auth.GoogleCallb
 		usr = newUser
 	}
 
-
 	tokenStr := s.generateToken(usr.ID)
 
+	dest := fmt.Sprintf("http://localhost:3000/login?token=%s", url.QueryEscape(tokenStr.AccessToken))
+
 	return &auth.GoogleCallbackResult{
-		Email:   userInfo.Email,
-		Name:    userInfo.Name,
-		Picture: &userInfo.Picture,
-		Token:   tokenStr.AccessToken,
+		RedirectURL: dest,
 	}, nil
 }
 
