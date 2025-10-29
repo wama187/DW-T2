@@ -22,8 +22,14 @@ func (r *userRepoPostgres) Create(u *User) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	return r.db.Create(user).Error
+
+	if err := r.db.Create(user).Error; err != nil {
+		return err
+	}
+	u.ID = user.ID
+	return nil
 }
+
 
 func (r *userRepoPostgres) FindByEmail(email string) (*User, error) {
 	var user models.UserModel
