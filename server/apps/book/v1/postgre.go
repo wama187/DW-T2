@@ -3,7 +3,6 @@ package book_v1
 import (
 	"app/server/apps/book"
 	"app/server/models"
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -18,9 +17,6 @@ func NewBookRepositoryPostgres(db *gorm.DB) *bookRepoPostgres {
 }
 
 func (r *bookRepoPostgres) Create(b *book.BookPostgre) error {
-	if b.OwnerID == 0 {
-			return fmt.Errorf("owner_id is required")
-		}
 
 	book := &models.BookModel{
 		Title:     b.Title,

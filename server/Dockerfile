@@ -16,6 +16,8 @@ FROM alpine:latest
 
 COPY --from=builder /server /server
 
+COPY --from=builder /app/.env /app/.env
+
 EXPOSE 8080
 
 ENTRYPOINT ["/server"]

@@ -21,7 +21,7 @@ const routes = [
     component: BookList,
     meta: { requiresAuth: true },
   },
-  { path: '/:pathMatch(.*)*', redirect: '/login' },
+  { path: '/:pathMatch(.*)*', redirect: '/books' },
 ];
 
 const router = createRouter({
@@ -33,6 +33,8 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.token) {
     next('/login');
+  } else if (authStore.token && to.name === 'Login') {
+    next('/books');
   } else {
     next();
   }
